@@ -58,9 +58,9 @@
     <!-- Bewerbungsdialog -->
     <BaseDialogApplication
       v-model="dialogOpen"
-      :job="selectedStelle"
-      :uploaded-files="nwkDocuments"
-      :nwk-id="nwk?.id ?? 0"
+      :stelle="selectedStelle"
+      :uploadedFiles="nwkDocuments"
+      :nwkId="nwk?.id ?? 0"
       @submitted="handleSubmit"
     />
   </v-container>
