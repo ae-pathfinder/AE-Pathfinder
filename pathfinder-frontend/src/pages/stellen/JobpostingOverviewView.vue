@@ -35,6 +35,15 @@
   <div v-else>
     <p>Bitte einloggen...</p>
   </div>
+
+  <v-btn
+    v-show="showScrollTop"
+    class="scroll-top-btn"
+    icon="mdi-arrow-up"
+    color="primary"
+    @click="scrollToTop"
+  />
+
 </template>
 
 <script setup lang="ts">
@@ -123,6 +132,22 @@ const filteredStellen = computed(() => {
       return (b.matchingScore ?? 0) - (a.matchingScore ?? 0)
     })
 })
+
+const showScrollTop = ref(false)
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  })
+}
+
+onMounted(() => {
+  window.addEventListener("scroll", () => {
+    showScrollTop.value = window.scrollY > 300
+  })
+})
+
 </script>
 
 
@@ -143,4 +168,12 @@ const filteredStellen = computed(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
+.scroll-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 999;
+  border-radius: 50%;
+}
+
 </style>

@@ -57,6 +57,13 @@
       @save="handleExperienceSave"
     />
   </v-container>
+  <v-btn
+      v-show="showScrollTop"
+      class="scroll-top-btn"
+      icon="mdi-arrow-up"
+      color="primary"
+      @click="scrollToTop"
+    />
 </template>
 
 <script setup lang="ts">
@@ -260,8 +267,32 @@ onMounted(() => {
   loadExperience()
   loadDocuments()
 })
+
+const showScrollTop = ref(false)
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  })
+}
+
+onMounted(() => {
+  window.addEventListener("scroll", () => {
+    showScrollTop.value = window.scrollY > 300
+  })
+})
+
 </script>
 
 <style scoped>
 .v-card-title { font-weight: 600; }
+.scroll-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 999;
+  border-radius: 50%;
+}
+
 </style>

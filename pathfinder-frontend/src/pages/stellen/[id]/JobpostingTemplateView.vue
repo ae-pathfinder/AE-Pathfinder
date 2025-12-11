@@ -20,7 +20,7 @@
         <v-col cols="12" class="mt-3" v-if="stelle?.status === 'OFFEN'">
           <h2>Deine Bewerbung</h2>
           <p>Haben wir dein Interesse geweckt? Dann freuen wir uns über deine Bewerbung!</p>
-
+          <p class="mt-4"></p>
           <div class="d-flex align-center">
             <!-- Bereits beworben -->
             <v-btn

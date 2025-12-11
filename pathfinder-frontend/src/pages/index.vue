@@ -15,7 +15,7 @@
       </v-col>
     </v-row>
   </v-container>
-  <v-footer app class="customfooter">Gestalte deine Zukunft mit ~ Pathfinder !</v-footer>
+  <v-footer app class="customfooter">Gestalte deine Zukunft mit ~ Pathfinder ! 🚀 </v-footer>
 </template>
 
 <script setup lang="ts">
