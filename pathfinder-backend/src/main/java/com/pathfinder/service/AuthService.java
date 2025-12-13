@@ -17,13 +17,13 @@ public class AuthService {
 
     public LoginResponseDTO login(LoginRequestDTO req) {
 
+        Nachwuchskraft nwk = repo.findByEmail(req.email())
+                .orElseThrow(() -> new EmailNotFoundException(req.email()));
+
         // Passwort check (Demo)
         if (!req.password().equals("pass123")) {
             throw new WrongPasswordException();
         }
-
-        Nachwuchskraft nwk = repo.findByEmail(req.email())
-                .orElseThrow(() -> new EmailNotFoundException(req.email()));
 
         return new LoginResponseDTO(
                 nwk.getId(),
