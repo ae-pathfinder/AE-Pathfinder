@@ -56,14 +56,8 @@
       :options="{ tags, abteilungen }"
       @save="handleExperienceSave"
     />
+    <BaseButtonScrollTop />
   </v-container>
-  <v-btn
-      v-show="showScrollTop"
-      class="scroll-top-btn"
-      icon="mdi-arrow-up"
-      color="primary"
-      @click="scrollToTop"
-    />
 </template>
 
 <script setup lang="ts">
@@ -75,17 +69,7 @@ import BaseCardNwkPersonal from '@/components/nachwuchskraefte/BaseCardNwkPerson
 import BaseCardNwkDocuments from '@/components/nachwuchskraefte/BaseCardNwkDocuments.vue'
 import BaseCardNwkExperienceAndInterests from '@/components/nachwuchskraefte/BaseCardNwkExperienceAndInterests.vue'
 import BaseDialogNwkUpdateExperienceAndInterests from '@/components/nachwuchskraefte/BaseDialogNwkUpdateExperienceAndInterests.vue'
-
-interface Nachwuchskraft {
-  id: number
-  personalnummer: string
-  vorname: string
-  nachname: string
-  email: string
-  studienrichtung: string
-  jahrgang: string
-  praktika: { id: number; name: string }[]
-}
+import BaseButtonScrollTop from '@/components/common/BaseButtonScrollTop.vue'
 
 interface NwkExperience {
   wunschabteilungen: { id: number; name: string }[]
@@ -268,31 +252,9 @@ onMounted(() => {
   loadDocuments()
 })
 
-const showScrollTop = ref(false)
-
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  })
-}
-
-onMounted(() => {
-  window.addEventListener("scroll", () => {
-    showScrollTop.value = window.scrollY > 300
-  })
-})
-
 </script>
 
 <style scoped>
 .v-card-title { font-weight: 600; }
-.scroll-top-btn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 999;
-  border-radius: 50%;
-}
 
 </style>

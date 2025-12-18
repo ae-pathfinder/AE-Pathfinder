@@ -42,17 +42,7 @@
     />
   </v-container>
 
-  <div v-else>
-    <p>Bitte einloggen...</p>
-  </div>
-
-  <v-btn
-    v-show="showScrollTop"
-    class="scroll-top-btn"
-    icon="mdi-arrow-up"
-    color="primary"
-    @click="scrollToTop"
-  />
+  <BaseButtonScrollTop />
 </template>
 
 <script setup lang="ts">
@@ -60,6 +50,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import BaseCardJobMini from '@/components/stellen/BaseCardJobMini.vue'
+import BaseButtonScrollTop from '@/components/common/BaseButtonScrollTop.vue'
 
 const router = useRouter()
 const API_URL = '/api/stellenportal'
@@ -155,17 +146,6 @@ const filteredStellen = computed(() => {
       return (b.matchingScore ?? 0) - (a.matchingScore ?? 0)
     })
 })
-
-/* =======================
-   UX
-======================= */
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: "smooth" })
-}
-
-window.addEventListener("scroll", () => {
-  showScrollTop.value = window.scrollY > 300
-})
 </script>
 
 <style scoped>
@@ -183,11 +163,5 @@ window.addEventListener("scroll", () => {
 .card-hover:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-.scroll-top-btn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 999;
 }
 </style>
