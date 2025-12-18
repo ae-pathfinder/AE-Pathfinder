@@ -32,7 +32,7 @@ import axios from 'axios'
 import BaseCardApplicationProcess from '@/components/bewerbungen/BaseCardApplicationProcess.vue'
 import BaseDialogMessage from '@/components/bewerbungen/BaseDialogMessage.vue'
 
-// Interfaces
+// ---------------- Interfaces ----------------
 interface Bewerbung {
   id: number
   status: 'EINGEREICHT' | 'IN_PRUEFUNG' | 'ABGELEHNT' | 'ANGELADEN' | 'ANGENOMMEN'
@@ -44,17 +44,21 @@ interface Bewerbung {
   stelleTitel: string
 }
 
-// Router
+// ---------------- Router ----------------
 const route = useRoute()
 const router = useRouter()
-const jobId = Number(route.params.id)
 
-// Daten
+// Typisieren von route.params
+const { id } = route.params as { id: string }
+const jobId = Number(id)
+
+// ---------------- State ----------------
 const bewerbung = ref<Bewerbung | null>(null)
 const dialogOpen = ref(false)
 const API_BEW = '/api/bewerbungen'
 const nwkId = ref<number | null>(null) // aktuell eingeloggte Nachwuchskraft
 
+// ---------------- Mounted ----------------
 onMounted(async () => {
   // Nutzer-Daten aus Session holen
   const userJson = sessionStorage.getItem('user')
@@ -86,7 +90,7 @@ onMounted(async () => {
   }
 })
 
-// Zurück zur Übersicht
+// ---------------- Funktionen ----------------
 function goBack() {
   router.push('/bewerbungen/ApplicationListView')
 }
