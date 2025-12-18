@@ -14,12 +14,10 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import App from '@/App.vue'
-import { createApp } from 'vue'
-import { registerPlugins } from '@/plugins'
 import axios from 'axios'
+import { mountApp } from '@/main' // Funktion zum Mounten von App.vue
 
 const email = ref('')
 const password = ref('')
@@ -28,33 +26,24 @@ const error = ref('')
 async function handleLogin() {
   error.value = ''
   try {
-    const response = await axios.post('api/auth/login', {
+    const response = await axios.post('/api/auth/login', {
       email: email.value,
       password: password.value
     })
 
     const user = response.data
 
-    // Session Storage statt localStorage
+    // Session speichern
     sessionStorage.setItem('loggedIn', 'true')
     sessionStorage.setItem('user', JSON.stringify(user))
 
-    // Haupt-App starten
-    const app = createApp(App)
-    registerPlugins(app)
-    app.mount('#app')
+    // App starten
+    mountApp()
   } catch (err: any) {
-    if (err.response) {
-      if (err.response.status === 404) error.value = 'E-Mail nicht gefunden'
-      else if (err.response.status === 401) error.value = 'Falsches Passwort'
-      else error.value = 'Fehler beim Einloggen'
-    } else {
-      error.value = 'Server nicht erreichbar'
-    }
+    error.value = 'Login fehlgeschlagen'
   }
 }
 </script>
-
 
 <style scoped>
 .login-background {
@@ -63,6 +52,7 @@ async function handleLogin() {
   align-items: center;
   height: 100vh;
   background-color: #f5f5f5;
+  color: #000000; /* Schrift schwarz */
 }
 .login-card {
   background-color: #fff;
@@ -72,9 +62,10 @@ async function handleLogin() {
   text-align: center;
   width: 100%;
   max-width: 400px;
+  color: #000000; /* Schrift schwarz */
 }
 .login-image { width: 100px; margin-bottom: 20px; }
-.login-input {
+input {
   display: block;
   width: 100%;
   padding: 10px 12px;
@@ -82,8 +73,9 @@ async function handleLogin() {
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 16px;
+  color: #000000; /* Schrift schwarz */
 }
-.login-button {
+button {
   width: 100%;
   padding: 10px;
   background-color: #1976d2;
@@ -93,6 +85,6 @@ async function handleLogin() {
   font-size: 16px;
   cursor: pointer;
 }
-.login-button:hover { background-color: #115293; }
-.error { color: red; margin-top: 10px; font-weight: 500; }
+button:hover { background-color: #115293; }
+p { color: red; margin-top: 10px; font-weight: 500; }
 </style>

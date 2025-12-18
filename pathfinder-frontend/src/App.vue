@@ -71,17 +71,12 @@ const menuItems = ref([
   { title: 'Meine Liste', route: '/merken/BookmarkView' },
 ])
 
-const loggedIn = ref(false)
-
-onMounted(() => {
-  loggedIn.value = sessionStorage.getItem('loggedIn') === 'true'
-  if (!loggedIn.value) router.replace('/login')
-})
+const isLoggedIn = computed(() => sessionStorage.getItem('loggedIn') === 'true')
 
 function logout() {
-  sessionStorage.removeItem('loggedIn')
-  sessionStorage.removeItem('user')
-  window.location.reload()
+  sessionStorage.clear()
+  mountLogin()
+  history.replaceState(null, '', '/LoginView')
 }
 </script>
 
