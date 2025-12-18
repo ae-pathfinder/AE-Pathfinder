@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" max-width="600px" persistent>
     <v-card>
       <v-card-title class="text-h6 font-weight-bold">
-        Bewerbung für: {{ job?.title || "Unbekannte Stelle" }}
+        Bewerbung für: {{ stelle?.titel || stelle?.title || "Unbekannte Stelle" }}
       </v-card-title>
 
       <v-divider></v-divider>
@@ -70,15 +70,15 @@ interface FileItem {
   hochgeladenAm: string;
 }
 
-interface Job {
+interface Stelle {
   id?: number;
-  title: string;
+  titel?: string;  // korrekt für deine Stellen-Detail-Seite
+  title?: string;  // fallback, falls API english liefert
 }
 
-// Props
 const props = defineProps<{
   modelValue: boolean;
-  job: Job | null;
+  stelle: Stelle | null;
   uploadedFiles: FileItem[];
   nwkId: any;
 }>();
@@ -88,17 +88,16 @@ const emit = defineEmits<{
   (e: "submitted"): void;
 }>();
 
-// Dialog + Form
 const dialog = ref(props.modelValue);
 const consent = ref(false);
 const selectedFilesForApplication = ref<number[]>([]);
 const hrNote = ref("");
 
-// v-model Sync
+// Sync mit v-model
 watch(() => props.modelValue, (val) => (dialog.value = val));
 watch(dialog, (val) => emit("update:modelValue", val));
 
-// Reset
+// Formular zurücksetzen
 function closeDialog() {
   consent.value = false;
   selectedFilesForApplication.value = [];
@@ -108,11 +107,11 @@ function closeDialog() {
 
 // Bewerbung absenden
 async function submitApplication() {
-  if (!props.job?.id) return alert("Keine gültige Stelle ausgewählt!");
+  if (!props.stelle?.id) return alert("Keine gültige Stelle ausgewählt!");
 
   try {
     const payload = {
-      stelleId: props.job.id,
+      stelleId: props.stelle.id,
       nachwuchskraftId: props.nwkId,
       fileIds: selectedFilesForApplication.value,
       hrNote: hrNote.value || null

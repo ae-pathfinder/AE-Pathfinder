@@ -53,10 +53,7 @@ const ladeGemerkteStellen = async () => {
   try {
     const response = await axios.get<GemerkteStelleDTO[]>(
       `/api/meineListe/nachwuchskraft/${nwkId.value}`
-      // Optional: Auth Header falls nötig
-      // { headers: { Authorization: `Bearer ${token}` } }
     )
-    console.log('Geladene Stellen:', response.data)
     bookmarkedJobs.value = response.data
   } catch (error) {
     console.error('Fehler beim Laden der gemerkten Stellen:', error)
@@ -73,36 +70,25 @@ const removeJob = async (stellenId: number) => {
   try {
     await axios.delete(
       `/api/meineListe/${stellenId}/nachwuchskraft/${nwkId.value}`
-      // Optional: Auth Header falls nötig
-      // { headers: { Authorization: `Bearer ${token}` } }
     )
     bookmarkedJobs.value = bookmarkedJobs.value.filter(
       j => j.stellenId !== stellenId
     )
-    console.log(`Stelle ${stellenId} entfernt.`)
   } catch (error) {
     console.error('Fehler beim Entfernen der Stelle:', error)
     alert('Fehler beim Entfernen der Stelle')
   }
 }
 
-// Mounted: Nutzer prüfen und Daten laden
+// Mounted: NWK ID aus SessionStorage laden und Daten abrufen
 onMounted(() => {
-  const loggedIn = sessionStorage.getItem('loggedIn') === 'true'
-  if (!loggedIn) {
-    window.location.href = '/login'
-    return
-  }
-
   const userJson = sessionStorage.getItem('user')
   if (userJson) {
     const userData = JSON.parse(userJson)
     nwkId.value = userData.id
-    console.log('Eingeloggt, NWK ID:', nwkId.value)
     ladeGemerkteStellen()
   } else {
     console.error('Kein eingeloggter Nutzer gefunden')
-    window.location.href = '/login'
   }
 })
 </script>

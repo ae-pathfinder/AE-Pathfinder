@@ -1,96 +1,93 @@
-//package com.pathfinder.service;
-//
-//import com.pathfinder.model.NachwuchskraftAnhang;
-//import com.pathfinder.repository.NachwuchskraftAnhangRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//class NachwuchskraftAnhangServiceTest {
-//
-//    @Test
-//    void simpleTest() {
-//        assertTrue(true);
-//    }
-//
-//    private NachwuchskraftAnhangRepository repository;
-//    private NachwuchskraftAnhangService service;
-//
-//    @BeforeEach
-//    void setup() {
-//        repository = mock(NachwuchskraftAnhangRepository.class);
-//        service = new NachwuchskraftAnhangService(repository);
-//    }
-//
-//    @Test
-//    void getByNachwuchskraft_shouldReturnList() {
-//        NachwuchskraftAnhang a1 = new NachwuchskraftAnhang();
-//        a1.setId(1L);
-//        NachwuchskraftAnhang a2 = new NachwuchskraftAnhang();
-//        a2.setId(2L);
-//
-//        when(repository.findByNachwuchskraftId(5L)).thenReturn(List.of(a1, a2));
-//
-//        List<NachwuchskraftAnhang> result = service.getByNachwuchskraft(5L);
-//
-//        assertEquals(2, result.size());
-//        verify(repository, times(1)).findByNachwuchskraftId(5L);
-//    }
-//
-//    @Test
-//    void save_shouldReturnSavedEntity() {
-//        NachwuchskraftAnhang anhang = new NachwuchskraftAnhang();
-//        anhang.setDateipfad("/tmp/lebenslauf.pdf");
-//
-//        when(repository.save(anhang)).thenReturn(anhang);
-//
-//        NachwuchskraftAnhang result = service.save(anhang);
-//
-//        assertNotNull(result);
-//        assertEquals("/tmp/lebenslauf.pdf", result.getDateipfad());
-//        verify(repository, times(1)).save(anhang);
-//    }
-//
-//    @Test
-//    void update_shouldModifyExistingEntity() {
-//        NachwuchskraftAnhang existing = new NachwuchskraftAnhang();
-//        existing.setId(10L);
-//        existing.setDateipfad("/alt.pdf");
-//        existing.setTyp(NachwuchskraftAnhang.DokumentTyp.ZEUGNIS);
-//
-//        NachwuchskraftAnhang updated = new NachwuchskraftAnhang();
-//        updated.setDateipfad("/neu.pdf");
-//        updated.setTyp(NachwuchskraftAnhang.DokumentTyp.MOTIVATIONSSCHREIBEN);
-//
-//        when(repository.findById(10L)).thenReturn(Optional.of(existing));
-//        when(repository.save(any(NachwuchskraftAnhang.class))).thenAnswer(i -> i.getArguments()[0]);
-//
-//        NachwuchskraftAnhang result = service.update(10L, updated);
-//
-//        assertEquals("/neu.pdf", result.getDateipfad());
-//        assertEquals(NachwuchskraftAnhang.DokumentTyp.MOTIVATIONSSCHREIBEN, result.getTyp());
-//        verify(repository, times(1)).save(existing);
-//    }
-//
-//    @Test
-//    void update_shouldThrow_whenNotFound() {
-//        NachwuchskraftAnhang updated = new NachwuchskraftAnhang();
-//        when(repository.findById(999L)).thenReturn(Optional.empty());
-//
-//        assertThrows(
-//                java.util.NoSuchElementException.class,
-//                () -> service.update(999L, updated)
-//        );
-//    }
-//
-//    @Test
-//    void delete_shouldCallRepository() {
-//        service.delete(7L);
-//        verify(repository, times(1)).deleteById(7L);
-//    }
-//}
+package com.pathfinder.service;
+
+import com.pathfinder.exception.InvalidFileTypeException;
+import com.pathfinder.exception.NachwuchskraftNotFoundException;
+import com.pathfinder.model.NachwuchskraftAnhang;
+import com.pathfinder.repository.NachwuchskraftAnhangRepository;
+import com.pathfinder.repository.NachwuchskraftRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
+class NachwuchskraftAnhangServiceTest {
+
+    private NachwuchskraftAnhangRepository anhangRepository;
+    private NachwuchskraftRepository nwkRepository;
+    private NachwuchskraftAnhangService service;
+
+    @BeforeEach
+    void setup() {
+        anhangRepository = mock(NachwuchskraftAnhangRepository.class);
+        nwkRepository = mock(NachwuchskraftRepository.class);
+
+        // Dummy-Upload-Ordner für Tests
+        service = new NachwuchskraftAnhangService(
+                anhangRepository,
+                nwkRepository,
+                "target/test-uploads"
+        );
+    }
+
+    @Test
+    void getByNachwuchskraft_shouldReturnList() {
+        NachwuchskraftAnhang a1 = new NachwuchskraftAnhang();
+        NachwuchskraftAnhang a2 = new NachwuchskraftAnhang();
+
+        when(anhangRepository.findByNachwuchskraftId(5L))
+                .thenReturn(List.of(a1, a2));
+
+        List<NachwuchskraftAnhang> result = service.getByNachwuchskraft(5L);
+
+        assertEquals(2, result.size());
+        verify(anhangRepository).findByNachwuchskraftId(5L);
+    }
+
+    @Test
+    void storeFile_shouldThrow_whenInvalidFileType() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getOriginalFilename()).thenReturn("test.exe");
+        when(file.getSize()).thenReturn(1000L);
+
+        // Nachwuchskraft existiert
+        when(nwkRepository.findById(1L))
+                .thenReturn(Optional.of(mock(com.pathfinder.model.Nachwuchskraft.class)));
+
+        assertThrows(
+                InvalidFileTypeException.class,
+                () -> service.storeFile(
+                        file,
+                        1L,
+                        NachwuchskraftAnhang.DokumentTyp.LEBENSLAUF
+                )
+        );
+    }
+
+    @Test
+    void storeFile_shouldThrow_whenNwkNotFound() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getOriginalFilename()).thenReturn("test.pdf");
+        when(file.getSize()).thenReturn(1000L);
+
+        when(nwkRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                NachwuchskraftNotFoundException.class,
+                () -> service.storeFile(
+                        file,
+                        99L,
+                        NachwuchskraftAnhang.DokumentTyp.ZEUGNIS
+                )
+        );
+    }
+}

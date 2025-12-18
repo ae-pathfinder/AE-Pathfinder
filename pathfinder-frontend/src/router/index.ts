@@ -14,6 +14,25 @@ const router = createRouter({
   routes: setupLayouts(routes),
 })
 
+router.beforeEach((to, from, next) => {
+  const loggedIn = sessionStorage.getItem('loggedIn') === 'true'
+
+  // Login-Page ist öffentlich
+  if (to.path === '/LoginView') {
+    next()
+    return
+  }
+
+  // Alle anderen Routen benötigen Login
+  if (!loggedIn) {
+    next('/LoginView')
+    return
+  }
+
+  next()
+})
+
+
 // Workaround for https://github.com/vitejs/vite/issues/11804
 router.onError((err, to) => {
   if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {

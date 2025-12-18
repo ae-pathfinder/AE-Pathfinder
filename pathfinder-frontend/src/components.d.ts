@@ -19,6 +19,7 @@ declare module 'vue' {
     BaseButtonLogin: typeof import('./components/common/BaseButtonLogin.vue')['default']
     BaseButtonLogout: typeof import('./components/common/BaseButtonLogout.vue')['default']
     BaseButtonMarkJob: typeof import('./components/common/BaseButtonMarkJob.vue')['default']
+    BaseButtonScrollTop: typeof import('./components/common/BaseButtonScrollTop.vue')['default']
     BaseButtonVerify: typeof import('./components/common/BaseButtonVerify.vue')['default']
     BaseCardApplicationMini: typeof import('./components/bewerbungen/BaseCardApplicationMini.vue')['default']
     BaseCardApplicationProcess: typeof import('./components/bewerbungen/BaseCardApplicationProcess.vue')['default']

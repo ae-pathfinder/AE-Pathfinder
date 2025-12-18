@@ -3,16 +3,22 @@ import App from './App.vue'
 import LoginView from '@/pages/LoginView.vue'
 import { registerPlugins } from './plugins'
 
-// Prüfen, ob Nutzer eingeloggt ist (Session Storage)
-const loggedIn = sessionStorage.getItem('loggedIn') === 'true'
+let appInstance: any = null
 
-// Root-Komponente wählen: LoginView oder App
-const rootComponent = loggedIn ? App : LoginView
-const app = createApp(rootComponent)
-
-// Plugins nur registrieren, wenn App.vue als Root geladen wird
-if (loggedIn) {
-  registerPlugins(app)
+export function mountApp() {
+  appInstance?.unmount() // alte App ggf. entladen
+  appInstance = createApp(App)
+  registerPlugins(appInstance)
+  appInstance.mount('#app')
 }
 
-app.mount('#app')
+export function mountLogin() {
+  appInstance?.unmount() // alte App ggf. entladen
+  appInstance = createApp(LoginView)
+  appInstance.mount('#app')
+}
+
+// Prüfen, ob eingeloggt
+const loggedIn = sessionStorage.getItem('loggedIn') === 'true'
+if (loggedIn) mountApp()
+else mountLogin()
