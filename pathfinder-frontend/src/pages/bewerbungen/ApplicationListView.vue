@@ -13,6 +13,7 @@
           />
         </v-col>
 
+        <!-- Info, falls keine Bewerbungen -->
         <v-col v-if="bewerbungen.length === 0" cols="12">
           <p>Keine Bewerbungen für diese Nachwuchskraft gefunden.</p>
         </v-col>
@@ -79,35 +80,25 @@ const handleWithdraw = async (id: number) => {
 
 // onMounted: Nachwuchskraft-ID aus SessionStorage laden und Bewerbungen laden
 onMounted(() => {
-  const loggedIn = sessionStorage.getItem('loggedIn') === 'true'
-  if (!loggedIn) {
-    router.replace('/login') // Weiterleitung zum Login, falls nicht eingeloggt
+  const userJson = sessionStorage.getItem('user')
+  if (!userJson) {
+    console.error('Kein eingeloggter Nutzer gefunden')
     return
   }
 
-  const userJson = sessionStorage.getItem('user')
-  if (userJson) {
-    const userData = JSON.parse(userJson)
-    if (userData?.id) {
-      nwkId.value = userData.id
-      ladeBewerbungen(userData.id)
-    } else {
-      console.error('Ungültige Nutzer-ID im SessionStorage')
-      router.replace('/login')
-    }
-  } else {
-    console.error('Kein eingeloggter Nutzer gefunden')
-    router.replace('/login')
-  }
+  const userData = JSON.parse(userJson)
+  nwkId.value = userData.id
+  ladeBewerbungen(userData.id)
 })
 </script>
 
 <style scoped>
-/* scoped */
 .box {
   margin: 2% 1% 1%;
   border: 2px solid #0000001a;
   padding: 16px;
+  border-radius: 8px;
+  background-color: #ffffff;
 }
 
 .card-hover {
@@ -118,5 +109,11 @@ onMounted(() => {
   transform: translateY(-4px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+}
+
+h1 {
+  color: #000;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="loggedIn && datenGeladen">
+  <v-container v-if="datenGeladen">
     <h1 class="mb-6">Offene Stellen</h1>
 
     <v-text-field
@@ -33,7 +33,7 @@
   </v-container>
 
   <!-- Loading State -->
-  <v-container v-else-if="loggedIn">
+  <v-container v-else>
     <v-skeleton-loader
       v-for="i in 5"
       :key="i"
@@ -47,12 +47,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import axios from 'axios'
 import BaseCardJobMini from '@/components/stellen/BaseCardJobMini.vue'
 import BaseButtonScrollTop from '@/components/common/BaseButtonScrollTop.vue'
 
-const router = useRouter()
 const API_URL = '/api/stellenportal'
 
 const search = ref("")
@@ -60,7 +58,6 @@ const stellen = ref<any[]>([])
 const bewerbungen = ref<any[]>([])
 const profileId = ref<number | null>(null)
 
-const loggedIn = ref(false)
 const datenGeladen = ref(false)
 const showScrollTop = ref(false)
 
@@ -68,11 +65,8 @@ const showScrollTop = ref(false)
    Lifecycle
 ======================= */
 onMounted(async () => {
-  loggedIn.value = sessionStorage.getItem('loggedIn') === 'true'
-  if (!loggedIn.value) return router.replace('/login')
-
   const userJson = sessionStorage.getItem("user")
-  if (!userJson) return
+  if (!userJson) return console.error('Kein eingeloggter Nutzer in SessionStorage')
   profileId.value = JSON.parse(userJson).id
 
   await ladeAlleDaten()

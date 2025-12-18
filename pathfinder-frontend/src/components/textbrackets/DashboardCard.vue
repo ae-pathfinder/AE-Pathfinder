@@ -82,14 +82,14 @@ onMounted(() => {
   const loggedIn = sessionStorage.getItem('loggedIn') === 'true'
   if (!loggedIn) {
     console.error('Nutzer nicht eingeloggt')
-    router.push('/login')
+    router.push('/LoginView')
     return
   }
 
   const userJson = sessionStorage.getItem('user')
   if (!userJson) {
     console.error('Kein eingeloggter Nutzer gefunden')
-    router.push('/login')
+    router.push('/LoginView')
     return
   }
 

@@ -71,28 +71,14 @@ import BaseCardNwkExperienceAndInterests from '@/components/nachwuchskraefte/Bas
 import BaseDialogNwkUpdateExperienceAndInterests from '@/components/nachwuchskraefte/BaseDialogNwkUpdateExperienceAndInterests.vue'
 import BaseButtonScrollTop from '@/components/common/BaseButtonScrollTop.vue'
 
-interface NwkExperience {
-  wunschabteilungen: { id: number; name: string }[]
-  interessen: { id: number; name: string }[]
-  programmieren?: boolean
-  programmiersprachen?: string | null
-}
+// Interfaces
+interface Nachwuchskraft { id: number; personalnummer: string; vorname: string; nachname: string; email: string; studienrichtung: string; jahrgang: string; praktika: { id: number; name: string }[] }
+interface NwkExperience { wunschabteilungen: { id: number; name: string }[]; interessen: { id: number; name: string }[]; programmieren?: boolean; programmiersprachen?: string | null }
+interface StoredFile { id: number; name: string; url: string; fileObject?: File }
+interface OptionData { tags: { id: number; name: string }[]; abteilungen: { id: number; name: string }[] }
 
-interface StoredFile {
-  id: number
-  name: string
-  url: string
-  fileObject?: File
-}
-
-interface OptionData {
-  tags: { id: number; name: string }[]
-  abteilungen: { id: number; name: string }[]
-}
-
-// ---------------- State ----------------
+// State
 const router = useRouter()
-const loggedIn = ref(false)
 const nwk = ref<Nachwuchskraft | null>(null)
 const nwkExperience = ref<NwkExperience | null>(null)
 const savedFiles = ref<StoredFile[]>([])
@@ -113,9 +99,7 @@ async function loadOptions() {
     tags.value = data.tags
     abteilungen.value = data.abteilungen
     optionsLoaded.value = true
-  } catch (err) {
-    console.error(err)
-  }
+  } catch (err) { console.error(err) }
 }
 
 async function loadExperience() {
@@ -130,65 +114,32 @@ async function loadExperience() {
       programmieren: data.programmieren,
       programmiersprachen: data.programmiersprachen ?? ''
     }
-  } catch (err) {
-    console.error(err)
-  }
+  } catch (err) { console.error(err) }
 }
 
 async function loadPersonal() {
   if (!nwk.value) return
-
   try {
     const res = await fetch(`/api/meinKonto/personal/${nwk.value.id}`)
     if (!res.ok) throw new Error(`Fehler: ${res.status}`)
     const data = await res.json()
-    nwk.value = {
-      id: data.id,
-      personalnummer: data.personalnummer,
-      vorname: data.vorname,
-      nachname: data.nachname,
-      email: data.email,
-      studienrichtung: data.studienrichtung,
-      jahrgang: data.jahrgang,
-      praktika: data.praktika ?? []
-    }
-  } catch (err) {
-    console.error(err)
-  }
+    nwk.value = { ...data, praktika: data.praktika ?? [] }
+  } catch (err) { console.error(err) }
 }
 
-// ----------------- Dokumente -----------------
 async function loadDocuments() {
   if (!nwk.value) return
   try {
     const res = await fetch(`/api/meinKonto/documents/${nwk.value.id}`)
-    if (res.status === 204) {
-      savedFiles.value = []
-      return
-    }
+    if (res.status === 204) { savedFiles.value = []; return }
     const data = await res.json()
-    savedFiles.value = data.map((d: any) => ({
-      id: d.id,
-      name: d.dateipfad.split('/').pop() ?? 'Unbekannt',
-      url: d.dateipfad
-    }))
-  } catch (err) {
-    console.error(err)
-  }
+    savedFiles.value = data.map((d: any) => ({ id: d.id, name: d.dateipfad.split('/').pop() ?? 'Unbekannt', url: d.dateipfad }))
+  } catch (err) { console.error(err) }
 }
 
-function handleDeleteFile(fileId: number) {
-  console.log('Datei löschen:', fileId)
-  // Hier ggf. API-Call zum Löschen implementieren
-}
+function handleDeleteFile(fileId: number) { console.log('Datei löschen:', fileId) }
+function handleUploadSave(savedFiles: any[]) { console.log('Dateien gespeichert:', savedFiles) }
 
-function handleUploadSave(savedFiles: any[]) {
-  console.log('Dateien gespeichert:', savedFiles)
-  // Hier ggf. State oder API-Call aktualisieren
-}
-
-
-// ---------------- Aktionen ----------------
 async function handleExperienceSave(updated: NwkExperience) {
   if (!nwk.value) return
   try {
@@ -204,34 +155,15 @@ async function handleExperienceSave(updated: NwkExperience) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-
     if (!res.ok) throw new Error(`Fehler beim Speichern: ${res.status}`)
-
-    // Backend liefert die aktualisierte Experience zurück
     const saved = await res.json()
-    nwkExperience.value = {
-      wunschabteilungen: saved.wunschabteilungen,
-      interessen: saved.interessen,
-      programmieren: saved.programmieren,
-      programmiersprachen: saved.programmiersprachen ?? ''
-    }
-
+    nwkExperience.value = { ...saved, programmiersprachen: saved.programmiersprachen ?? '' }
     alert('Bevorzugte Abteilungen & Interessen gespeichert!')
-  } catch (err) {
-    console.error(err)
-    alert('Fehler beim Speichern!')
-  }
+  } catch (err) { console.error(err); alert('Fehler beim Speichern!') }
 }
-
 
 // ---------------- Mounted ----------------
 onMounted(() => {
-  loggedIn.value = sessionStorage.getItem('loggedIn') === 'true'
-  if (!loggedIn.value) {
-    router.replace('/login')
-    return
-  }
-
   const userJson = sessionStorage.getItem('user')
   if (!userJson) return console.error('Kein eingeloggter Nutzer gefunden')
   const userData = JSON.parse(userJson)

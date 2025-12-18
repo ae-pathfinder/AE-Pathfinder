@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="loggedIn">
+  <v-container>
     <h1 class="mb-6">Stellenausschreibung</h1>
 
     <v-container class="box">
@@ -20,8 +20,7 @@
         <v-col cols="12" class="mt-3" v-if="stelle?.status === 'OFFEN'">
           <h2>Deine Bewerbung</h2>
           <p>Haben wir dein Interesse geweckt? Dann freuen wir uns über deine Bewerbung!</p>
-          <p class="mt-4"></p>
-          <div class="d-flex align-center">
+          <div class="d-flex align-center mt-4">
             <!-- Bereits beworben -->
             <v-btn
               v-if="hatBereitsBeworben(stelle.id)"
@@ -64,14 +63,10 @@
       @submitted="handleSubmit"
     />
   </v-container>
-
-  <div v-else>
-    <p>Bitte einloggen...</p>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -93,7 +88,6 @@ const API_BEW = '/api/bewerbungen'
 const API_MERKLISTE = '/api/meineListe'
 
 const nwk = ref<{ id: number } | null>(null)
-const loggedIn = ref(false)
 const stelle = ref<any>(null)
 const dialogOpen = ref(false)
 const selectedStelle = ref<any>(null)
@@ -158,6 +152,7 @@ async function merkeStelle(id: number) {
       await axios.post(`${API_MERKLISTE}/${id}/merken/nachwuchskraft/${nwk.value.id}`)
       gemerkteStellenIds.value.push(id)
       stelle.value = { ...stelle.value, gemerkt: true }
+      alert('Stelle erfolgreich zur Merkliste hinzugefügt!') // ✅ Erfolgsmeldung
       return
     }
 
@@ -167,6 +162,7 @@ async function merkeStelle(id: number) {
     await axios.delete(`${API_MERKLISTE}/${id}/nachwuchskraft/${nwk.value.id}`)
     gemerkteStellenIds.value = gemerkteStellenIds.value.filter(x => x !== id)
     stelle.value = { ...stelle.value, gemerkt: false }
+    alert('Stelle erfolgreich von der Merkliste entfernt!') // ✅ Erfolgsmeldung
   } catch (err) {
     console.error("Merken/Entfernen fehlgeschlagen:", err)
     alert("Fehler beim Merken/Entfernen")
@@ -209,11 +205,8 @@ function goBack() {
 // Mounted
 // -------------------------------------------------------------
 onMounted(async () => {
-  loggedIn.value = sessionStorage.getItem("loggedIn") === "true"
-  if (!loggedIn.value) return router.replace("/login")
-
   const userJson = sessionStorage.getItem("user")
-  if (!userJson) return router.replace("/login")
+  if (!userJson) return console.error('Kein eingeloggter Nutzer in SessionStorage')
   nwk.value = { id: JSON.parse(userJson).id }
 
   // Reihenfolge wichtig
